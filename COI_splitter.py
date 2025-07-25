@@ -81,4 +81,4 @@ def split_certificates(input_pdf_path, output_dir):
             holder_name = extract_certificate_holder_name(extract_text(certificate_pages[0]))
             holder_name = sanitize_filename(holder_name)
             save_certificate(certificate_pages, certificate_counter, output_dir, holder_name)
-
+            certificate_counter += 1
