@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload Certificate Pack</title>
+    <style>
+        #progress { display: none; margin-top: 20px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Certificate Splitter</h1>
+    <form id="uploadForm" action="/" method="POST" enctype="multipart/form-data">
+        <input type="file" name="pdf_file" id="pdfInput" required>
+        <button type="submit" id="submitBtn">Upload & Split</button>
+    </form>
+
+    <div id="progress">⏳ Processing... Please wait.</div>
+
+    <script>
+    const form = document.getElementById("uploadForm");
+    const progress = document.getElementById("progress");
+    const submitBtn = document.getElementById("submitBtn");
+    const input = document.getElementById("pdfInput");
+
+form.addEventListener("submit", async function(e) {
+    e.preventDefault();
+
+    submitBtn.disabled = true;
+    input.disabled = true;
+    progress.style.display = "block";
+
+    const formData = new FormData();
+    formData.append("pdf_file", input.files[0]);
+
+    const response = await fetch("/", {
+        method: "POST",
+        body: formData,
+    });
+
+    if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "certificates.zip";  // 👈 same name as in send_file
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+
+        progress.textContent = "✅ Download ready!";
+    } else {
+        const text = await response.text();
+        progress.textContent = "❌ Error: " + text;
+    }
+});
+</script>
+</body>
+</html>
